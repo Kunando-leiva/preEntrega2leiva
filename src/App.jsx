@@ -1,54 +1,67 @@
 import { useEffect, useState } from "react";
 import { Container } from "@chakra-ui/react";
-import ItemListContainer from "./componentes/ItemListContainer";
-import ItemDetail from "./componentes/ItemDetail";
-import NavBar from "./componentes/Navbar";
-import CartWidget from "./componentes/CartWidget";
-import axios from "axios";
+import ItemListContainer from "./componentes/ItemListContainer/ItemListContainer";
+import ItemDetail from "./componentes/ItemDetail/ItemDetail";
+import NavBar from "./componentes/Navbar/Navbar";
+import ProductCard from "./componentes/ProductCard/ProductCard";
 import { Navigate, Route, Routes } from "react-router-dom";
-import ProductosCard from "./componentes/ProductosCard";
+import Indexcart from "./componentes/carrito/IndexCart";
+import { db } from "../db/firebase-config";
+import { collection, getDocs } from "firebase/firestore";
+
+
+
 
 function App() {
-  const [productos, setProductos] = useState([]);
+  const [product, setProduct] = useState([]);
+  const productCollectionRef = collection( db, "product");
+  const [loading, setLoading] = useState(true);
 
-  const getProductos = () => {
-    axios.get("https://fakestoreapi.com/products").then((response) => {
-      console.log(response.data);
-      setProductos(response.data);
-    });
+  const getProduct = async ()=>{
+    const querySnapshot = await getDocs(productCollectionRef);
+    const docs = querySnapshot.docs.map((doc) => doc.data());
+    setProduct(docs)
+    setLoading(false);
+    console.log(docs)
   };
+  
   useEffect(() => {
-    getProductos();
-  }, []);
+    getProduct();
+  }, [])
+  
+  if (loading) {
+    return <h3>Cargando...</h3>;
+  }
+
+  
 
   return (
     <Container width="100%" maxWidth="100vw" padding={0}>
-      <NavBar CartWidget={CartWidget} />
-    
-    
-      <Routes>
+      <NavBar />
+ 
+    <Routes>
         <Route path="*" element={<Navigate to="/" />} />
         <Route
           path="/"
           element={
             <ItemListContainer
-              ProductosCard={ProductosCard}
-              productos={productos}
+              ProductCard={ProductCard}
+              productos={product}
               greeting="Bienvenido a nuestra tienda!"
             />
           }
         />
         <Route
           path="/producto/:id"
-          element={<ItemDetail productos={productos} />}
+          element={<ItemDetail productos={product} />}
         />
 
         <Route
           path="/mujer"
           element={
             <ItemListContainer
-              ProductosCard={ProductosCard}
-              productos={productos}
+              ProductCard={ProductCard}
+              productos={product}
               greeting="Productos seleccionados para mujeres"
             />
           }
@@ -57,8 +70,8 @@ function App() {
           path="/hombre"
           element={
             <ItemListContainer
-              ProductosCard={ProductosCard}
-              productos={productos}
+              ProductCard={ProductCard}
+              productos={product}
               greeting="Productos seleccionados para hombres"
             />
           }
@@ -67,26 +80,29 @@ function App() {
           path="/accesorios"
           element={
             <ItemListContainer
-              ProductosCard={ProductosCard}
-              productos={productos}
+              ProductCard={ProductCard}
+              productos={product}
               greeting="Nuestros accesorios"
             />
           }
         />
         <Route
-          path="/electronico"
+          path="/electronica"
           element={
             <ItemListContainer
-              ProductosCard={ProductosCard}
-              productos={productos}
+              ProductCard={ProductCard}
+              productos={product}
               greeting="Productos de electrónica"
             />
-
-            
           }
         />
-      </Routes>
+
+    <Route 
+        path="/cartwidget" element={<Indexcart/>}>
+    </Route>
+  </Routes>
     </Container>
+   
   );
 }
 

@@ -1,13 +1,14 @@
 import { SimpleGrid, Box, Heading } from "@chakra-ui/react";
-import ProductosCard from "./ProductosCard";
+import ProductCard from "../ProductCard/ProductCard";
 import { useLocation } from "react-router-dom";
 
 function ItemListContainer({ productos, greeting }) {
+  
   const mapCategories = {
-    hombre: "men's clothing",
     mujer: "women's clothing",
+    hombre: "men's clothing",
     accesorios: "jewelery",
-    electronico: "electronics",
+    electronica: "electronics",
   };
 
   const categoria = useLocation().pathname.split("/")[1] || "todos";
@@ -28,19 +29,18 @@ function ItemListContainer({ productos, greeting }) {
           {greeting}
         </Heading>
       </Box>
-      <SimpleGrid minChildWidth="250px" spacing="20px" m="6">
+      
+      <SimpleGrid  justifyItems="center" minChildWidth="md" spacing="20px" m="6">
         {productos
           .filter(
             (producto) =>
               producto.category === categoriaEstado ||
               categoriaEstado === "todos"
           )
-          .map((producto) => (
-            <ProductosCard
+          .map((producto) => (<ProductCard
               id={producto.id}
               image={producto.image}
               title={producto.title}
-              description={producto.description}
               price={producto.price}
             />
           ))}
@@ -50,10 +50,3 @@ function ItemListContainer({ productos, greeting }) {
 }
 
 export default ItemListContainer;
-
-
-
-
-
-
-
